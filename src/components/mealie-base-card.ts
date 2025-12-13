@@ -117,8 +117,8 @@ export abstract class MealieBaseCard extends LitElement {
           <ul>
             ${ingredients.map(ingredient => html`
               <li>
-                ${ingredient.quantity ? html`<span class="ingredient-quantity">${ingredient.quantity} ${ingredient.unit}</span>` : ''}
-                <span class="ingredient-name">${ingredient.display || ingredient.food?.name || ingredient.note}</span>
+                ${ingredient.quantity ? html`<span class="ingredient-quantity">${ingredient.quantity} ${ingredient.unit?.name || ingredient.unit || ''}</span>` : ''}
+                <span class="ingredient-name">${ingredient.display || ingredient.food?.name || ingredient.food || ingredient.note}</span>
               </li>
             `)}
           </ul>
