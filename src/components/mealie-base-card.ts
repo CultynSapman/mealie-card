@@ -109,6 +109,7 @@ export abstract class MealieBaseCard extends LitElement {
   }
 
   protected renderRecipeIngredients(ingredients: any[], showIngredients: boolean): TemplateResult | string {
+    console.log(`[Mealie Card] Render Ingredients? show=${showIngredients}, count=${ingredients?.length}`);
     if (!showIngredients || !ingredients || ingredients.length === 0) return '';
 
     return html`
