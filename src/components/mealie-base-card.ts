@@ -1,7 +1,7 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { html, LitElement, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { formatTime, getRecipeImageUrl, getRecipeUrl, imageOrientation } from '../utils/helpers';
+import { formatTime, getRecipeImageUrl, getRecipeUrl, imageOrientation, getMealieRecipe, parsePythonDict } from '../utils/helpers';
 import localize from '../utils/translate.js';
 
 export abstract class MealieBaseCard extends LitElement {
@@ -115,18 +115,53 @@ export abstract class MealieBaseCard extends LitElement {
     if (!showIngredients || !ingredients || ingredients.length === 0) return '';
 
     return html`
-        <div class="recipe-ingredients">
-          <h4>${localize('common.ingredients') || 'Ingredients'}</h4>
-          <ul>
-            ${ingredients.map(ingredient => html`
+      <div class="recipe-ingredients">
+        <h4>${localize('common.ingredients') || 'Ingredients'}</h4>
+        <ul>
+          ${ingredients.map(ingredient => {
+      // Fallback: Parse unit if it's a stringified Python dict
+      let unit = ingredient.unit;
+      if (typeof unit === 'string' && unit.trim().startsWith('{')) {
+        const parsed = parsePythonDict(unit);
+        if (parsed && typeof parsed === 'object') {
+          unit = parsed;
+        }
+      }
+
+      // Extract unit name safely
+      const unitName = unit?.name || (typeof unit === 'string' ? unit : '') || '';
+
+      // Extract food name - handle is_food=null/missing by checking note or display
+      // If food is missing, we try to use the note as the name if it exists
+      const foodName = ingredient.food?.name || ingredient.display || '';
+      const note = ingredient.note || '';
+
+      // Construct display string
+      // Case 1: Quantity + Unit + Food
+      // Case 2: Quantity + Food (no unit)
+      // Case 3: Food only (no quantity)
+      // Case 4: Note used as food name if food is missing
+
+      const renderQuantity = ingredient.quantity ? html`<span class="ingredient-quantity">${ingredient.quantity} ${unitName}</span>` : '';
+      const renderName = foodName ? html`<span class="ingredient-name">${foodName}</span>` : '';
+      const renderNote = note && note !== foodName ? html`<span class="ingredient-note">(${note})</span>` : '';
+
+      // If we have absolutely no name, shows "Unknown Ingredient" to alert user
+      const finalName = renderName || (note ? html`<span class="ingredient-name">${note}</span>` : html`<span class="ingredient-name" style="opacity:0.5; font-style:italic">Ingredient</span>`);
+      // If note was used as name, don't show it again
+      const finalNote = (note && !renderName) ? '' : renderNote;
+
+      return html`
               <li>
-                ${ingredient.quantity ? html`<span class="ingredient-quantity">${ingredient.quantity} ${ingredient.unit?.name || ingredient.unit || ''}</span>` : ''}
-                <span class="ingredient-name">${ingredient.display || ingredient.food?.name || ingredient.food || ingredient.note}</span>
+                ${renderQuantity}
+                ${finalName}
+                ${finalNote}
               </li>
-            `)}
-          </ul>
-        </div>
-      `;
+            `;
+    })}
+        </ul>
+      </div>
+    `;
   }
 
   protected handleImageError(e: Event): void {

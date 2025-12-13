@@ -185,6 +185,9 @@ export async function getMealieRecipes(
           }
           return fullRecipe;
         }
+        if ((recipe as any).recipe_ingredient) {
+          (recipe as any).ingredients = (recipe as any).recipe_ingredient;
+        }
         return recipe;
       })
     );
@@ -391,4 +394,31 @@ export function groupRecipesByDate(recipes: MealiePlanRecipe[]): Record<string, 
     acc[date].push(recipe);
     return acc;
   }, {} as Record<string, MealiePlanRecipe[]>);
+}
+
+
+/**
+ * Parses a Python-style dictionary string (e.g., "{'a': 1, 'b': None}") into a JS Object.
+ * This is a fallback for when the backend sends raw Python string representations.
+ */
+export function parsePythonDict(str: string): any {
+  if (!str || typeof str !== 'string') return str;
+  try {
+    // 1. Replace None/True/False with JSON equivalents
+    let jsonStr = str
+      .replace(/None/g, 'null')
+      .replace(/True/g, 'true')
+      .replace(/False/g, 'false');
+
+    // 2. Replace single quotes with double quotes
+    // This is a naive regex replacing ' key ' or ' value ' with " key " or " value "
+    // It's not perfect but handles the common case of {'key': 'val'}
+    jsonStr = jsonStr.replace(/'/g, '"');
+
+    // 3. Attempt parse
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    console.warn('[Mealie Card] Failed to parse Python dict string:', str, e);
+    return str; // Return original if parsing fails
+  }
 }
