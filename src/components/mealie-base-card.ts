@@ -109,6 +109,9 @@ export abstract class MealieBaseCard extends LitElement {
   }
 
   protected renderRecipeIngredients(ingredients: any[], showIngredients: boolean): TemplateResult | string {
+    if (showIngredients && ingredients?.length > 0) {
+      console.log('[Mealie Card - DEBUG INGREDIENTS]', JSON.stringify(ingredients, null, 2));
+    }
     if (!showIngredients || !ingredients || ingredients.length === 0) return '';
 
     return html`
