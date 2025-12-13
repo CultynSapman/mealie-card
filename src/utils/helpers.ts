@@ -173,7 +173,15 @@ export async function getMealieRecipes(
     });
 
     const recipes = response?.response?.recipes?.items || [];
-    return recipes;
+    const detailedRecipes = await Promise.all(
+      recipes.map(async (recipe: any) => {
+        if (recipe.id) {
+          return await getMealieRecipe(hass, { configEntryId, recipeId: recipe.id });
+        }
+        return recipe;
+      })
+    );
+    return detailedRecipes;
   } catch (err) {
     throw new Error(`${localize('error.error_loading')}: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
   }

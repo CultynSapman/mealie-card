@@ -24,6 +24,7 @@ export interface MealieRecipeCardConfig extends BaseMealieCardConfig {
   show_perform_time: boolean;
   show_total_time: boolean;
   show_description: boolean;
+  show_ingredients: boolean;
   result_limit?: number;
 }
 

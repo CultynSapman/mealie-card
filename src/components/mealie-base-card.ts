@@ -108,6 +108,24 @@ export abstract class MealieBaseCard extends LitElement {
     `;
   }
 
+  protected renderRecipeIngredients(ingredients: any[], showIngredients: boolean): TemplateResult | string {
+    if (!showIngredients || !ingredients || ingredients.length === 0) return '';
+
+    return html`
+        <div class="recipe-ingredients">
+          <h4>${localize('common.ingredients') || 'Ingredients'}</h4>
+          <ul>
+            ${ingredients.map(ingredient => html`
+              <li>
+                ${ingredient.quantity ? html`<span class="ingredient-quantity">${ingredient.quantity} ${ingredient.unit}</span>` : ''}
+                <span class="ingredient-name">${ingredient.display || ingredient.food?.name || ingredient.note}</span>
+              </li>
+            `)}
+          </ul>
+        </div>
+      `;
+  }
+
   protected handleImageError(e: Event): void {
     const img = e.target as HTMLImageElement;
     const container = img.parentElement;
