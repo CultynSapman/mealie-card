@@ -24,14 +24,17 @@ export class MealieRecipeCard extends MealieBaseCard {
 
     this._loading = true;
     this.error = null;
+    console.log('[Mealie Card] loadData started');
 
     try {
       this.recipes = await getMealieRecipes(this.hass, {
         configEntryId: this.config.mealie_config_entry_id,
         resultLimit: this.config.result_limit ?? DEFAULT_RESULT_LIMIT
       });
+      console.log(`[Mealie Card] loadData success. Recipes: ${this.recipes.length}`);
       this._initialized = true;
     } catch (err) {
+      console.error('[Mealie Card] loadData failed:', err);
       this.error = err instanceof Error ? err.message : localize('error.error_loading');
       this._initialized = true;
     } finally {

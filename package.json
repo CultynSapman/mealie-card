@@ -1,6 +1,6 @@
 {
   "name": "mealie-card",
-  "version": "2.2.9",
+  "version": "2.2.10",
   "description": "Custom Home Assistant card for displaying daily meals from Mealie",
   "type": "module",
   "main": "dist/mealie-card.js",

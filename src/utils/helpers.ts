@@ -174,6 +174,7 @@ export async function getMealieRecipes(
 
     const recipes = response?.response?.recipes?.items || [];
 
+    console.log(`[Mealie Card] Fetching detailed recipes... Count: ${recipes.length}`);
     const detailedRecipes = await Promise.all(
       recipes.map(async (recipe: any) => {
         const recipeId = recipe.id || recipe.recipe_id;
@@ -199,8 +200,10 @@ export async function getMealieRecipes(
         return recipe;
       })
     );
+    console.log('[Mealie Card] All detailed recipes processed. Returning.');
     return detailedRecipes;
   } catch (err) {
+    console.error('[Mealie Card] CRITICAL ERROR in getMealieRecipes:', err);
     throw new Error(`${localize('error.error_loading')}: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
   }
 }
