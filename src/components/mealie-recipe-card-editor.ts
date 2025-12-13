@@ -80,6 +80,11 @@ export class MealieReceipeCardEditor extends LitElement {
           ${localize('editor.show_total_time')}
         </div>
 
+        <div class="option">
+          <ha-switch .checked=${this.config.show_ingredients ?? false} .configValue=${'show_ingredients'} @change=${this.valueChanged}></ha-switch>
+          ${localize('common.ingredients') || 'Show Ingredients'}
+        </div>
+
         <div class="option ${!hasUrl ? 'disabled' : ''}">
           <ha-switch .checked=${hasUrl && this.config.clickable !== false} .configValue=${'clickable'} .disabled=${!hasUrl} @change=${this.valueChanged}></ha-switch>
           ${localize('editor.clickable')}
