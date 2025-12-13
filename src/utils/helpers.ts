@@ -14,7 +14,6 @@ export async function getMealieConfigEntryId(hass: HomeAssistant): Promise<strin
     const entries = await hass.callWS<any[]>({
       type: 'config_entries/get'
     });
-    console.log('[Mealie Card] Config Entries:', entries);
 
     const mealieEntry = entries.find((e) => e.domain === MEALIE_DOMAIN);
 
@@ -174,14 +173,16 @@ export async function getMealieRecipes(
     });
 
     const recipes = response?.response?.recipes?.items || [];
-    console.log('[Mealie Card] Found recipes:', recipes.length, recipes);
 
     const detailedRecipes = await Promise.all(
       recipes.map(async (recipe: any) => {
         const recipeId = recipe.id || recipe.recipe_id;
         if (recipeId) {
           const fullRecipe = await getMealieRecipe(hass, { configEntryId, recipeId: recipeId });
-          console.log(`[Mealie Card] Fetched details for ${recipe.name}:`, fullRecipe);
+          // Map recipe_ingredient to ingredients if present
+          if (fullRecipe && fullRecipe.recipe_ingredient) {
+            fullRecipe.ingredients = fullRecipe.recipe_ingredient;
+          }
           return fullRecipe;
         }
         return recipe;
@@ -189,7 +190,6 @@ export async function getMealieRecipes(
     );
     return detailedRecipes;
   } catch (err) {
-    console.error('[Mealie Card] Error loading recipes:', err);
     throw new Error(`${localize('error.error_loading')}: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
   }
 }
