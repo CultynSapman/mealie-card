@@ -178,8 +178,9 @@ export async function getMealieRecipes(
 
     const detailedRecipes = await Promise.all(
       recipes.map(async (recipe: any) => {
-        if (recipe.id) {
-          const fullRecipe = await getMealieRecipe(hass, { configEntryId, recipeId: recipe.id });
+        const recipeId = recipe.id || recipe.recipe_id;
+        if (recipeId) {
+          const fullRecipe = await getMealieRecipe(hass, { configEntryId, recipeId: recipeId });
           console.log(`[Mealie Card] Fetched details for ${recipe.name}:`, fullRecipe);
           return fullRecipe;
         }
