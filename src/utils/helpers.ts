@@ -178,12 +178,20 @@ export async function getMealieRecipes(
       recipes.map(async (recipe: any) => {
         const recipeId = recipe.id || recipe.recipe_id;
         if (recipeId) {
-          const fullRecipe = await getMealieRecipe(hass, { configEntryId, recipeId: recipeId });
-          // Map recipe_ingredient to ingredients if present
-          if (fullRecipe && fullRecipe.recipe_ingredient) {
-            fullRecipe.ingredients = fullRecipe.recipe_ingredient;
+          try {
+            console.log(`[Mealie Card] Fetching details for recipe: ${recipe.name} (${recipeId})`);
+            const fullRecipe = await getMealieRecipe(hass, { configEntryId, recipeId: recipeId });
+            // Map recipe_ingredient to ingredients if present
+            if (fullRecipe && fullRecipe.recipe_ingredient) {
+              fullRecipe.ingredients = fullRecipe.recipe_ingredient;
+            }
+            console.log(`[Mealie Card] Successfully fetched details for: ${recipe.name}`);
+            return fullRecipe;
+          } catch (e) {
+            console.warn(`[Mealie Card] Failed to fetch details for recipe ${recipeId}`, e);
+            // Fallback: Return original summary object so at least the card shows basic info
+            return recipe;
           }
-          return fullRecipe;
         }
         if ((recipe as any).recipe_ingredient) {
           (recipe as any).ingredients = (recipe as any).recipe_ingredient;
